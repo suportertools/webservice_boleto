@@ -16,6 +16,7 @@ import br.com.sindical.model.Layout;
 import br.com.sindical.model.Pessoa;
 import br.com.sindical.utilitarios.Datas;
 import br.com.sindical.utilitarios.Moeda;
+import br.com.sindical.utilitarios.MoedaDouble;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -198,7 +199,6 @@ public class ClienteController {
         //if (1 == 2) {
         //    return "Este CNPJ já esta cadastrado";
         //}
-
         Dao dao = new Dao();
 
         dao.begin();
@@ -274,7 +274,7 @@ public class ClienteController {
         return con;
     }
 
-    public String criar_boleto_contribuinte(String chave_cliente, Integer codigo, String numero_banco, Integer id_layout, String data_vencimento, String valor, String referencia, String conta, String agencia, String codigo_cedente, String local_pagamento, String moeda, String especie_moeda, String especie_documento, String carteira, String mensagem_via_contribuinte, String mensagem_via_banco, String nosso_numero, Integer id_boleto) {
+    public String criar_boleto_contribuinte(String chave_cliente, Integer codigo, String numero_banco, Integer id_layout, String data_vencimento, String valor, String referencia, String conta, String agencia, String codigo_cedente, String local_pagamento, String moeda, String especie_moeda, String especie_documento, String carteira, String mensagem_via_contribuinte, String mensagem_via_banco, String nosso_numero, Integer id_boleto, String jurosMensal, String multa) {
         Cliente cliente = new ClienteDao().pesquisaClienteChave(chave_cliente);
         if (cliente == null) {
             // CLIENTE NÃO ENCONTRADO
@@ -337,7 +337,9 @@ public class ClienteController {
                 mensagem_via_banco,
                 nosso_numero,
                 "",
-                id_boleto
+                id_boleto,
+                MoedaDouble.converteUS$(jurosMensal),
+                MoedaDouble.converteUS$(multa)
         );
 
         dao.begin();
@@ -426,14 +428,14 @@ public class ClienteController {
     public HashMap imprimir_boleto_contribuinte(String chave_cliente, String nosso_numero) {
         return imprimir_boleto_contribuinte(chave_cliente, nosso_numero, false);
     }
-    
-    public byte[] Hash(String dados)  {
+
+    public byte[] Hash(String dados) {
         MessageDigest md;
         byte[] decoded = new byte[0];
         try {
             md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(dados.getBytes("ISO8859-1"));
-            
+
             decoded = Base64.encodeBase64(hash);
             //decoded = Base64.decodeBase64(hash);
             System.out.println(Arrays.toString(decoded));
@@ -471,7 +473,7 @@ public class ClienteController {
             if (test) {
                 // httppost = new HttpPost("https://geraboleto.sicoobnet.com.br/geradorBoleto/Gerarerrr.do");
             } else {
-                
+
             }
 
             if (cliente.getInicioRepresentacao().equals("75691.44111")) {
@@ -479,13 +481,13 @@ public class ClienteController {
             } else {
                 //byte[] x = Hash("0200400000000000000000000510201600000000015005000123456789124");
                 //String zz = x.toString();
-                
+
                 //httppost = new HttpPost("https://des.barramento.caixa.gov.br/sibar/ConsultaCobrancaBancaria/Boleto?wsdl");             
                 retorno.put("status", false);
                 retorno.put("mensagem", "Teste não completado!");
                 return retorno;
             }
-            
+
             List<NameValuePair> params = new ArrayList(2);
 
             params.add(new BasicNameValuePair("coopCartao", bol.getAgencia())); // Cooperativa do Cliente coopCartao N X 4 - Cooperativas do sistema SICOOB 3260
@@ -504,9 +506,18 @@ public class ClienteController {
             params.add(new BasicNameValuePair("cep", bol.getContribuinte().getPessoa().getCep())); // CEP do Sacado cep A X 8 - Informação do Cliente 58108130
             params.add(new BasicNameValuePair("uf", bol.getContribuinte().getPessoa().getUf())); // UF do Sacado uf A X 2 - Informação do Cliente DF
             params.add(new BasicNameValuePair("codMunicipio", cliente.getCodigoMunicipio())); // Código do Município do Sacado codMunicipio N X - Informação do Cliente 1009
-            //params.add(new BasicNameValuePair("codMunicipio", "29751")); // Código do Município do Sacado codMunicipio N X - Informação do Cliente 1009
             params.add(new BasicNameValuePair("chaveAcessoWeb", cliente.getChaveAcessoBanco())); // Chave de Acesso chaveAcessoWeb A X 36 - Informação gerada pela Cooperativa DFFF3ADD-7880-4A28-8413-91EDD1DBE2E1
+
+            //params.add(new BasicNameValuePair("codMunicipio", "29751")); // Código do Município do Sacado codMunicipio N X - Informação do Cliente 1009
             //params.add(new BasicNameValuePair("chaveAcessoWeb", "B049844D-C11D-4F5E-9D2F-87E0596304E6")); // Chave de Acesso chaveAcessoWeb A X 36 - Informação gerada pela Cooperativa DFFF3ADD-7880-4A28-8413-91EDD1DBE2E1
+
+            if (bol.getMulta() > 0) {
+                params.add(new BasicNameValuePair("percTaxaMulta", "" + bol.getMulta())); // Percentual da Taxa de Multa
+            }
+
+            if (bol.getJurosMensal() > 0) {
+                params.add(new BasicNameValuePair("percTaxaMora", "" + bol.getJurosMensal())); // Percentual da Taxa de Mora
+            }
 
             httppost.setEntity(new UrlEncodedFormEntity(params, "UTF8"));
 
@@ -605,7 +616,6 @@ public class ClienteController {
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-            //add reuqest header
             con.setRequestMethod("POST");
             con.setRequestProperty("User-Agent", USER_AGENT);
 
@@ -643,7 +653,7 @@ public class ClienteController {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
 
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
@@ -651,7 +661,7 @@ public class ClienteController {
             in.close();
 
             System.out.println(response.toString());
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println(e);
             return e.getMessage();
         }

@@ -16,6 +16,7 @@ import br.com.sindical.model.Layout;
 import br.com.sindical.model.Pessoa;
 import br.com.sindical.utilitarios.Datas;
 import br.com.sindical.utilitarios.Moeda;
+import br.com.sindical.utilitarios.MoedaDouble;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -277,7 +278,7 @@ public class ClienteController_backuo {
         return con;
     }
 
-    public String criar_boleto_contribuinte(String chave_cliente, Integer codigo, String numero_banco, Integer id_layout, String data_vencimento, String valor, String referencia, String conta, String agencia, String codigo_cedente, String local_pagamento, String moeda, String especie_moeda, String especie_documento, String carteira, String mensagem_via_contribuinte, String mensagem_via_banco, String nosso_numero, Integer id_boleto) {
+    public String criar_boleto_contribuinte(String chave_cliente, Integer codigo, String numero_banco, Integer id_layout, String data_vencimento, String valor, String referencia, String conta, String agencia, String codigo_cedente, String local_pagamento, String moeda, String especie_moeda, String especie_documento, String carteira, String mensagem_via_contribuinte, String mensagem_via_banco, String nosso_numero, Integer id_boleto, String jurosMensal, String multa) {
         chave_cliente = "dsf46sdf4da98dgf4ae98gf4afea";
         Cliente cliente = new ClienteDao().pesquisaClienteChave(chave_cliente);
         if (cliente == null) {
@@ -341,7 +342,9 @@ public class ClienteController_backuo {
                 mensagem_via_banco,
                 nosso_numero,
                 "",
-                id_boleto
+                id_boleto,
+                MoedaDouble.converteUS$(jurosMensal),
+                MoedaDouble.converteUS$(multa)
         );
 
         dao.begin();

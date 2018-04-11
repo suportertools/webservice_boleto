@@ -11,7 +11,7 @@
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <!-- <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://sindical.rtools.com.br:5432/zweb_service_test"/> -->
-      <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://192.168.1.100:5432/zweb_service_test"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://192.168.15.100:5432/zweb_service_test"/>
       <property name="javax.persistence.jdbc.user" value="postgres"/>
       <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
       <property name="javax.persistence.jdbc.password" value="r#@tools"/>

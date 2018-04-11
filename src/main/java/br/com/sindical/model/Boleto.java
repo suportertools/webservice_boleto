@@ -86,6 +86,10 @@ public class Boleto implements Serializable {
     private String nossoNumeroBanco;
     @Column(name = "id_boleto")
     private Integer id_boleto;
+    @Column(name = "pe_juros_mensal")
+    private Double jurosMensal;
+    @Column(name = "pe_multa")
+    private Double multa;
 
     public Boleto() {
         this.id = -1;
@@ -112,9 +116,11 @@ public class Boleto implements Serializable {
         this.nossoNumero = "";
         this.nossoNumeroBanco = "";
         this.id_boleto = null;
+        this.jurosMensal = new Double(0);
+        this.multa = new Double(0);
     }
 
-    public Boleto(int id, Cliente cliente, Contribuinte contribuinte, Banco banco, Layout layout, Date dataVencimento, Date dataLancamento, Float valor, String referencia, Date dataBaixa, Float valorBaixa, String conta, String agencia, String codigoCedente, String localPagamento, String moeda, String especieMoeda, String especieDocumento, String carteira, String mensagemViaContribuinte, String mensagemViaBanco, String nossoNumero, String nossoNumeroBanco, Integer id_boleto) {
+    public Boleto(int id, Cliente cliente, Contribuinte contribuinte, Banco banco, Layout layout, Date dataVencimento, Date dataLancamento, Float valor, String referencia, Date dataBaixa, Float valorBaixa, String conta, String agencia, String codigoCedente, String localPagamento, String moeda, String especieMoeda, String especieDocumento, String carteira, String mensagemViaContribuinte, String mensagemViaBanco, String nossoNumero, String nossoNumeroBanco, Integer id_boleto, Double jurosMensal, Double multa) {
         this.id = id;
         this.cliente = cliente;
         this.contribuinte = contribuinte;
@@ -139,6 +145,8 @@ public class Boleto implements Serializable {
         this.nossoNumero = nossoNumero;
         this.nossoNumeroBanco = nossoNumeroBanco;
         this.id_boleto = id_boleto;
+        this.jurosMensal = jurosMensal;
+        this.multa = multa;
     }
 
     public int getId() {
@@ -339,6 +347,22 @@ public class Boleto implements Serializable {
 
     public void setId_boleto(Integer id_boleto) {
         this.id_boleto = id_boleto;
+    }
+
+    public Double getJurosMensal() {
+        return jurosMensal;
+    }
+
+    public void setJurosMensal(Double jurosMensal) {
+        this.jurosMensal = jurosMensal;
+    }
+
+    public Double getMulta() {
+        return multa;
+    }
+
+    public void setMulta(Double multa) {
+        this.multa = multa;
     }
 
 }
